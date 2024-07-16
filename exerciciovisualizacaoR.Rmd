@@ -1,0 +1,72 @@
+---
+Exercício - Visualização, Gráficos e Dashboards (R)
+---
+```{r}
+library(lattice)
+library("RColorBrewer")
+library(stargazer)
+```
+```{r}
+dados = read.csv("dados.csv", header = TRUE, sep = ";")
+dados
+```
+Visualizando dados com histogram e Boxplot
+```{r}
+bwplot(dados$PIB, main="DADOS - PIB (Municipios Gaúchos)", xlab = 'PIB', col='red', outline=F)
+bwplot(dados$VALOREMPENHO, main="DADOS - Valor de Empenho (Munícipios Gaúchos)", xlab = "Valores de Empenho", outline=F)
+histogram(dados$PIB, main = "DADOS - PIB (Municipios Gaúchos)", xlab = "PIB", ylab="Percentual Total", col='red')
+histogram(dados$VALOREMPENHO, main="DADOS - Valor de Empenho (Munícipios Gaúchos)", xlab = "Valores de Empenho", ylab="Percentual Total")
+```
+Agregamento de Dados 
+```{r}
+aggregate(dados$PIB, by=list(dados$MUNICIPIO), FUN=sum)
+aggregate(dados$PIB, by=list(dados$VALOREMPENHO), FUN=sum)
+aggregate(dados$VALOREMPENHO, by=list(dados$MUNICIPIO), FUN=sum)
+
+```
+Verificando maior PIB
+```{r}
+Maior_pibs =   head(dados[order(-dados$PIB),],10)
+barplot(Maior_pibs$PIB,col=brewer.pal(n = 10, name = "Spectral"),las=2,main = "Maiores PIBS")
+legend("topright",legend=Maior_pibs$MUNICIPIO,col = brewer.pal(n = 10, name = "Spectral"), lty=1:2, cex=0.8, ncol = 2,lwd=4)
+box()
+```
+Verificando maiores valores de empenho
+```{r}
+Maior_empenho = head(dados[order(-dados$VALOREMPENHO),],10)
+barplot(Maior_empenho$VALOREMPENHO, col=brewer.pal(n = 10, name = "RdBu"),las=2,main = "Maiores Empenhos")
+legend("topright",legend=Maior_empenho$MUNICIPIO,col = brewer.pal(n = 10, name = "RdBu"), lty=1:2, cex=0.8, ncol = 2,lwd=4)
+box()
+```
+Relação entre PIB e Empenho
+```{r}
+dados$PROPORCAO =   dados$VALOREMPENHO  / dados$PIB 
+Maior_prop = head(dados[order(-dados$PROPORCAO),],10)
+barplot(Maior_prop$PROPORCAO,col=brewer.pal(n = 8, name = "Set2"),las=2,main = "Maiores Gastos em Proporção ao PIB")
+legend("topright",legend=Maior_prop$MUNICIPIO,col = brewer.pal(n = 8, name = "Set2"), lty=1:2, cex=0.8, ncol = 2,lwd=4)
+box()
+```
+Exibindo dados em tabela stargazer TXT, HTML
+```{r}
+stargazer(dados, type="text")
+stargazer(dados, type="html")
+```
+Criando gráficos com densidade
+```{r}
+#densidade do pib
+densidade_pib = density(dados$PIB)
+hist(dados$PIB, main = NULL, xlab = NULL, ylab = NULL, probability = T, xaxt ='n', yaxt='n')
+par(new=TRUE)
+plot(densidade_pib)
+#densidade do valor de empenho
+densidade_empenho = density(dados$VALOREMPENHO)
+hist(dados$VALOREMPENHO, main = NULL, xlab = NULL, ylab = NULL, probability = T, xaxt ='n', yaxt='n')
+par(new=TRUE)
+plot(densidade_empenho)
+```
+Finalizando criando Gráfico de Dispersão
+```{r}
+plot(jitter(dados$PIB, dados$VALOREMPENHO), main = "Municipios Gaúchos", pch=20, ylab = 'Empenho', xlab='PIB', col= 'orange')
+```
+
+
